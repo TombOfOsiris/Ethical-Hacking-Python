@@ -1,6 +1,7 @@
 #!/user/bin/env python
 
-# The first byte of the mac address cannot be odd. Add input validation to verify.
+# TODO: The first byte of the mac address cannot be odd. Add input validation to verify.
+# TODO: Create option to mimic a specified manufacturer MM:MM:MM:SS:SS:SS
 
 import subprocess
 import optparse
@@ -13,12 +14,23 @@ def get_arguments():
     parser.add_option("-m", "--mac", dest="new_mac", help="New MAC address")
     (options, arguments) = parser.parse_args()
     if not options.interface or not options.new_mac:
-        parser.error("[-] Please specify an interface and mac, use --help for more info")
+        parser.error("[+] Please specify an interface and mac, use --help for more info.")
+    if not is_valid_interface(options):
+        parser.error("[-] " + options.interface + "is not an existing interface.")
     return options
 
 
+def is_valid_interface(options):
+    ifconfig_result = subprocess.check_output(['ip', 'address'])
+    interfaces = re.findall(r"(?<=\d:\s)\w+(?=:\s)", ifconfig_result)
+    if options.interface not in interfaces:
+        return False
+    else:
+        return True
+
+
 def change_mac(interface, new_mac):
-    print("[+] Changing MAC Address for " + interface + " to " + new_mac)
+    print("[-] Changing MAC Address for " + interface + " to " + new_mac)
     subprocess.call(["ifconfig", interface, "down"])
     subprocess.call(["ifconfig", interface, "hw", "ether", new_mac])
     subprocess.call(["ifconfig", interface, "up"])
