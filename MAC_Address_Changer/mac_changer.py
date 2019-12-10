@@ -16,7 +16,7 @@ def get_arguments():
     if not options.interface or not options.new_mac:
         parser.error("[+] Please specify an interface and mac, use --help for more info.")
     if not is_valid_interface(options):
-        parser.error("[-] " + options.interface + "is not an existing interface.")
+        parser.error("[-] " + options.interface + " is not an existing interface.")
     return options
 
 
